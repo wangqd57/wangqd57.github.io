@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>My experiment</title>
+        <script src="jspsych-6.1.0/jspsych.js"></script>
+        <script src="jspsych-6.1.0/plugins/jspsych-html-keyboard-response.js"></script>
+        <script src="jspsych-6.1.0/plugins/jspsych-image-keyboard-response.js"></script>
+        <script src="jspsych-6.1.0/plugins/jspsych-survey-text.js"></script>
+        <link href="jspsych-6.1.0/css/jspsych.css" rel="stylesheet" type="text/css"></link>
+    </head>
+    <body></body>
+    <script>
+
+        // generate a random subject ID with 15 characters
+        var subject_id = jsPsych.randomization.randomID(15);
+
+        // pick a random condition for the subject at the start of the experiment
+        var condition_assignment = jsPsych.randomization.sampleWithoutReplacement(['conditionA', 'conditionB', 'conditionC'], 1)[0];
+
+
+
+        /* create timeline */
+        var timeline = [];
+
+    
+        /* define welcome message trial */
+        var welcome = {
+          type: "html-keyboard-response",
+          stimulus: "欢迎参加我们的实验。按任意键开始"
+        };
+        timeline.push(welcome);
+
+        /* define subinformation trial */
+        var subinfo = {
+          type: 'survey-text',
+          questions: [
+            {prompt: '您的手机号码（不要输错，用于确认劳务费的发放）', placeholder: '若没有，请输入家长的手机号', columns: 20, required: true, name: 'name'},
+            {prompt: '您的年龄/岁', columns: 5, required: true, name: 'age'},
+            {prompt: '您的性别（请输入对应的数字）', placeholder: '1=男/2=女/3=双性/4=同性恋', columns: 20, required: true, name: 'gender'}
+          ],
+          button_label: '继续',
+        };
+        timeline.push(subinfo);
+        
+
+        /* define instructions trial */
+        var instructions = {
+        type: "html-keyboard-response",
+        stimulus: "<p>In this experiment, a circle will appear in the center " +
+            "of the screen.</p><p>If the circle is <strong>blue</strong>, " +
+            "press the letter F on the keyboard as fast as you can.</p>" +
+            "<p>If the circle is <strong>orange</strong>, press the letter J " +
+            "as fast as you can.</p>" +
+            "<div style='width: 700px;'>"+
+            "<div style='float: left;'><img src='img/blue.png'></img>" +
+            "<p class='big'><strong>Press the F key</strong></p></div>" +
+            "<div class='float: right;'><img src='img/orange.png'></img>" +
+            "<p class='small'><strong>Press the J key</strong></p></div>" +
+            "</div>"+
+            "<p>Press any key to begin.</p>",
+            post_trial_gap: 2000
+        };
+        timeline.push(instructions);
+
+        /* test trials */
+        var test_stimuli = [
+          { stimulus: "img/blue.png", data: {test_part: 'test', correct_response: 'f'}},
+          { stimulus: "img/orange.png", data: {test_part: 'test', correct_response: 'j'}}
+        ];
+
+        var fixation = {
+          type: 'html-keyboard-response',
+          stimulus: '<div style="font-size:60px;">+</div>',
+          choices: jsPsych.NO_KEYS,
+          trial_duration: function(){
+            return Math.floor(Math.random() * 1500 + 500);   //jsPsych.randomization.sampleWithoutReplacement([250, 500, 750, 1000, 1250, 1500, 1750, 2000], 1)[0];
+          },
+          data: {test_part: 'fixation'}
+        }
+
+        var test = {
+          type: "image-keyboard-response",
+          prompt: '<p>快判断</p>',
+          stimulus: jsPsych.timelineVariable('stimulus'),
+          choices: ['f', 'j'],
+          data: jsPsych.timelineVariable('data'),
+          on_finish: function(data){
+            data.correct = data.key_press == jsPsych.pluginAPI.convertKeyCharacterToKeyCode(data.correct_response);
+          }
+        }
+
+        var trial_feedback = {
+            type: 'html-keyboard-response',
+            stimulus: function(){
+              var last_trial_correct = jsPsych.data.get().last(1).values()[0].correct;
+              if(last_trial_correct){
+                return "<p>Correct!</p>";
+              } else {
+                return "<p>Wrong.</p>"
+              }
+            },
+            trial_duration: 1000,
+            post_trial_gap: 500,
+          }
+
+        var test_procedure = {
+          timeline: [fixation, test, trial_feedback],
+          timeline_variables: test_stimuli,
+          randomize_order: true,
+          repetitions: 1
+        }
+
+        timeline.push(test_procedure);
+
+        /* define debrief */
+        var debrief_block = {
+              type: "html-keyboard-response",
+              stimulus: function() {
+
+                var trials = jsPsych.data.get().filter({test_part: 'test'});
+                var correct_trials = trials.filter({correct: true});
+                var accuracy = Math.round(correct_trials.count() / trials.count() * 100);
+                var rt = Math.round(correct_trials.select('rt').mean());
+
+                return "<p>You responded correctly on "+accuracy+"% of the trials.</p>"+
+                "<p>Your average response time was "+rt+"ms.</p>"+
+                "<p>Press any key to complete the experiment. Thank you!</p>";
+
+              }
+            };
+          timeline.push(debrief_block);
+          
+        /* start the experiment */
+        jsPsych.init({
+          timeline: timeline,
+          //preload_images: ['img1.png', 'img2.png'],   // var video = ['video/1.mp4', 'video/2.mp4']; preload_video: video
+          //show_preload_progress_bar: false, // hide preload progress bar
+          //use_webaudio: false，
+          //experiment_width: 750,
+          //show_progress_bar: true,
+          //message_progress_bar: '进度',
+
+          on_finish: function() {
+            //console.log(jsPsych.data.get().json());
+            //jsPsych.data.get().localSave('json','mydata1.json');
+            //jsPsych.data.get().filter({test_part: test}).localSave('csv','mydata.csv');
+            //jsPsych.data.addProperties({completed: true});
+            var subject_info1 = jsPsych.data.get().select('responses')['values'][0];
+            var subject_info =JSON.parse(subject_info1);
+            //jsPsych.data.addProperties({subject_info: subject_info});
+            jsPsych.data.addProperties({sub: subject_info.name, gender: subject_info.gender, age: subject_info.age});
+            jsPsych.data.displayData('json');
+            jsPsych.data.get().filter({test_part: 'test'}).localSave('json', subject_info.name + '.json');
+            //jsPsych.data.get().filter({test_part: 'fixation'}).localSave('json', 'fix.json');
+            //jsPsych.data.get().filter({test_part: 'test'}).localSave('csv', subject_info.name + '.csv');
+          }
+        });
+
+      </script>
+</html>
