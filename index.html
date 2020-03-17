@@ -1,23 +1,17 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>My experiment</title>
+        <title>调查研究</title>
         <script src="jspsych-6.1.0/jspsych.js"></script>
         <script src="jspsych-6.1.0/plugins/jspsych-html-keyboard-response.js"></script>
         <script src="jspsych-6.1.0/plugins/jspsych-image-keyboard-response.js"></script>
         <script src="jspsych-6.1.0/plugins/jspsych-survey-text.js"></script>
+        <script src="jspsych-6.1.0/plugins/jspsych-survey-likert.js"></script>
+        <script src="jspsych-6.1.0/plugins/jspsych-instructions.js"></script>
         <link href="jspsych-6.1.0/css/jspsych.css" rel="stylesheet" type="text/css"></link>
     </head>
     <body></body>
     <script>
-
-        // generate a random subject ID with 15 characters
-        var subject_id = jsPsych.randomization.randomID(15);
-
-        // pick a random condition for the subject at the start of the experiment
-        var condition_assignment = jsPsych.randomization.sampleWithoutReplacement(['conditionA', 'conditionB', 'conditionC'], 1)[0];
-
-
 
         /* create timeline */
         var timeline = [];
@@ -25,132 +19,203 @@
     
         /* define welcome message trial */
         var welcome = {
-          type: "html-keyboard-response",
-          stimulus: "欢迎参加我们的实验。按任意键开始"
-        };
-        timeline.push(welcome);
+            type: 'instructions',
+            pages: ["<p><strong><big>我们诚邀请参加一个关于孤独症(自闭症)的调查研究。</big></strong></p>" + 
+            "<p>在这个研究中，您将需要对一些面孔图片进行判断，然后需要完成一些问题，整个过程大概用时35分钟。您会得到30元的报酬。</p>" +
+            "<p>本研究需要用到<strong>键盘</strong>，无法通过触屏操作，所以请用您电脑的浏览器打开。</p><p></p><p></p>",
+             "<p><strong><big>知情同意书</big></strong></p><p></p>" + 
+             "<div style='float: left;'><strong>一、 调查内容</strong></div></br>" + 
+             "<div style='float: left;'>1、 个人基本信息：年龄、性别、手机号等。</div></br>" + 
+             "<div style='float: left;'>2、 面孔判断：选出最像您心目中的孤独症（自闭症）儿童的面孔。</div></br>" + 
+             "<div style='float: left;'>3、 问卷调查：包括人格、社交、注意、焦虑等。</div></br>" +
+             "<div style='float: left;'>4、 孤独症（自闭症）知识测查。</div></br><p></p>" + 
+             "<div style='float: left;'><strong>二、 伦理和安全</strong></div></br>" +
+             "<div style='float: left;'>参与本研究不会产生任何不适，不会损害身心健康。在完成本研究的过程中，请您如实、认真地完成每个条目；</div></br>" +
+             "<div style='float: left;'>按要求完成后，<strong>我们将在1个月左右给您支付劳务费</strong>。本着完全自愿的参与原则，您可以在任何时候无需任何理由终止。</div></br><p></p>"+
+             "<div style='float: left;'><strong>三、 隐私</strong></div></br>" +
+             "<div style='float: left;'>我们会采取多种措施来防止个人信息的泄露。所有数据将被分配代码，如数字、字母、标示等。</div></br>" +
+             "<div style='float: left;'>与代码相关的信息储存在调查人员的电脑内，其他人员只有被您授权方可获得代码和您的个人信息。</div></br>" +
+             "<div style='float: left;'>任何人包括亲属、医生、雇主、保险公司等均无权查阅这些数据除非您授权。</div></br><p></p>" +
+             "<div style='float: left;'><strong>四、 疑问或/个人权益受到损害与谁联系</strong></div></br>" +
+             "<div style='float: left;'>如果您对本研究有任何疑问，请请通过此邮箱<strong>（wangqd@pku.edu.cn）</strong>联系我们。</div></br><p></p>" +
+             "<div style='float: left;'><strong>五、 自愿原则</strong></div></br>" +
+             "<div style='float: left;'>您参加本研究是自愿的，您可以拒绝参加本研究，也可以在任何时间退出，这不会给您带来任何影响。</div></br><p></p><p></p>",
+             "<p><strong><big>参与者声明</big></strong></p>" +
+             "<p>在下一页的个人信息页面中，如果您<strong>写上您的姓名</strong>就代表您已阅读并已明白关于这个研究的信息，并同意对您的数据保存和用于科学研究。</p>" + 
+             "<p>注意：在下一页的个人信息中，请您 <strong>千万不要输错手机号 </strong>，否则会导致您的数据无法提交。</p><p></p><p></p>"],
+            show_clickable_nav: true,
+            show_page_number: true,
+            button_label_previous: '上一页',
+            button_label_next: '下一页'
+          }
+         timeline.push(welcome);
 
         /* define subinformation trial */
         var subinfo = {
           type: 'survey-text',
           questions: [
-            {prompt: '您的手机号码（不要输错，用于确认劳务费的发放）', placeholder: '若没有，请输入家长的手机号', columns: 20, required: true, name: 'name'},
-            {prompt: '您的年龄/岁', columns: 5, required: true, name: 'age'},
-            {prompt: '您的性别（请输入对应的数字）', placeholder: '1=男/2=女/3=双性/4=同性恋', columns: 20, required: true, name: 'gender'}
+            {prompt: '您的手机号码（<font color="red">千万不要输错</font>，输错会导致无法提交数据。方便联系，比如处理劳务费无法发放的问题。）', placeholder: '若没有，请输入家长的手机号', columns: 30, required: true, name: 'name'},
+            {prompt: '您的姓名', placeholder: '用于劳务费的报销并确认您已知情同意', columns: 30, required: true, name: 'subnum'},
+            {prompt: '您的身份证号码', placeholder: '用于劳务费的报销', columns: 30, required: false, name: 'id'},
+            {prompt: '您的支付宝账号', placeholder: '用于给您支付劳务费', columns: 30, required: false, name: 'pay_id'},
+            {prompt: '您的年龄/岁', columns: 5, required: false, name: 'age'},
+            {prompt: '您的职业', placeholder: '如果与孤独症相关请详细说明', columns: 30, required: false, name: 'pro'},
+            {prompt: '您的性别（请输入对应的数字）', placeholder: '1=男/2=女/3=双性/4=同性恋', columns: 30, required: false, name: 'gender'}
           ],
           button_label: '继续',
+          preamble: '<big><strong>1、 个人信息收集（您可能需要滚动滑轮并点击最下方的<font color="red">继续按钮</font>进入下一页）</strong></big> '
         };
         timeline.push(subinfo);
         
 
-        /* define instructions trial */
-        var instructions = {
+        /* define face instructions trial */
+        var instructions_face = {
         type: "html-keyboard-response",
-        stimulus: "<p>In this experiment, a circle will appear in the center " +
-            "of the screen.</p><p>If the circle is <strong>blue</strong>, " +
-            "press the letter F on the keyboard as fast as you can.</p>" +
-            "<p>If the circle is <strong>orange</strong>, press the letter J " +
-            "as fast as you can.</p>" +
-            "<div style='width: 700px;'>"+
-            "<div style='float: left;'><img src='img/blue.png'></img>" +
-            "<p class='big'><strong>Press the F key</strong></p></div>" +
-            "<div class='float: right;'><img src='img/orange.png'></img>" +
-            "<p class='small'><strong>Press the J key</strong></p></div>" +
-            "</div>"+
-            "<p>Press any key to begin.</p>",
-            post_trial_gap: 2000
+        stimulus: "<p><strong><big>2、 面孔判断</big></strong></p>" +
+            "<p>在您的人生经历中，您见过或者听说过孤独症/自闭症患者。</p>" +
+            "<p>现在请您花点时间在脑中想象一下孤独症儿童长的模样。</p>" +
+            "<p>接下来的任务会左右各呈现一张模糊的面孔给您看，</p>" +
+            "<p><strong>您需要判断左边还是右边的面孔更像您脑中的孤独症儿童的模样。</strong></p>" +
+            "<p>如果您选择左边请按键盘的<strong>F</strong>键，如果右边请按<strong>J</strong>键。</p>" +
+            "<p>您总共需要判断300组面孔。当您熟悉过程后，可以快速地凭借第一感觉判断，但请您不要乱做。</p>" +
+            "<p>准备好后按任意键开始</p>",
+            post_trial_gap: 1000
         };
-        timeline.push(instructions);
+        timeline.push(instructions_face);
 
-        /* test trials */
-        var test_stimuli = [
-          { stimulus: "img/blue.png", data: {test_part: 'test', correct_response: 'f'}},
-          { stimulus: "img/orange.png", data: {test_part: 'test', correct_response: 'j'}}
-        ];
+        /* face trials */
+        var face_stimuli = [];
+        for (var i = 1; i <= 5; i++) {
+            face_stimuli.push({stimulus: "img/" + i + ".jpg", data: {test_part: 'face'}});
+        }
 
         var fixation = {
           type: 'html-keyboard-response',
           stimulus: '<div style="font-size:60px;">+</div>',
           choices: jsPsych.NO_KEYS,
           trial_duration: function(){
-            return Math.floor(Math.random() * 1500 + 500);   //jsPsych.randomization.sampleWithoutReplacement([250, 500, 750, 1000, 1250, 1500, 1750, 2000], 1)[0];
+            return Math.floor(Math.random() * 250 + 250);   //jsPsych.randomization.sampleWithoutReplacement([250, 500, 750, 1000, 1250, 1500, 1750, 2000], 1)[0];
           },
           data: {test_part: 'fixation'}
         }
 
-        var test = {
+        var face_test = {
           type: "image-keyboard-response",
-          prompt: '<p>快判断</p>',
+          prompt: '<p>请判断哪张面孔更像您脑海中的孤独症儿童，左=F，右=J</p>',
           stimulus: jsPsych.timelineVariable('stimulus'),
           choices: ['f', 'j'],
-          data: jsPsych.timelineVariable('data'),
-          on_finish: function(data){
-            data.correct = data.key_press == jsPsych.pluginAPI.convertKeyCharacterToKeyCode(data.correct_response);
-          }
+          data: jsPsych.timelineVariable('data')
         }
 
-        var trial_feedback = {
-            type: 'html-keyboard-response',
-            stimulus: function(){
-              var last_trial_correct = jsPsych.data.get().last(1).values()[0].correct;
-              if(last_trial_correct){
-                return "<p>Correct!</p>";
-              } else {
-                return "<p>Wrong.</p>"
-              }
-            },
-            trial_duration: 1000,
-            post_trial_gap: 500,
-          }
-
-        var test_procedure = {
-          timeline: [fixation, test, trial_feedback],
-          timeline_variables: test_stimuli,
+        var facetest_procedure = {
+          timeline: [fixation, face_test],
+          timeline_variables: face_stimuli,
           randomize_order: true,
           repetitions: 1
         }
 
+        
+
+        /* define ASD knowledge instructions trial */
+        var instructions_test = {
+        type: "html-keyboard-response",
+        stimulus: "<p><strong><big>4、 孤独症（自闭症）知识测查</big></strong></p>" +
+            "<p>您需要判断31道与孤独症（自闭症）相关描述的对错。请既快又准确地作出判断。</p>" +
+            "<p>如果您觉得描述正确请按键盘的<strong>F</strong>键，如果不正确请按<strong>J</strong>键。</p>" +
+            "<p>每一道题您有<strong>15秒</strong>的作答时间，时间一到算做错，自动进入下一题。</p>"+
+            "<p>准备好后按任意键开始</p>",
+            post_trial_gap: 1000
+        };
+
+        /* ASD knowledge trials */
+        var test_stimuli = [
+          { stimulus2: '<strong><big>1. 不到2%的人患有孤独症。</strong></big>'},
+          { stimulus2: '<strong><big>2. 疫苗可导致孤独症。</strong></big>'}
+        ];
+        var fixation_test = {
+          type: 'html-keyboard-response',
+          stimulus: '准备好后，按空格键进入下一题',
+          choices: [32],
+          data: {test_part: 'fixation2'}
+        }
+        var test = {
+          type: "html-keyboard-response",
+          prompt: '<p>正确=F，错误=J，请在15秒内反应</p>',
+          stimulus: jsPsych.timelineVariable('stimulus2'),
+          choices: ['f', 'j'],
+          trial_duration: 15000,
+          data: {test_part: 'test'}
+        }
+        var test_procedure = {
+          timeline: [fixation_test, test],
+          timeline_variables: test_stimuli,
+          randomize_order: false,
+          repetitions: 1
+        }
+
+        
+      /* define scale instructions trial */
+        var instructions_scale = {
+        type: "html-keyboard-response",
+        stimulus: "<p><strong><big>3、 问卷调查</big></strong></p>" +
+            "<p>请认真阅读下面的每个问题，判断句中的描述符合您的情况的程度。</p>" +
+            "<p>请用鼠标点击对应的选项。</p>" +
+            "<p>准备好后按任意键开始</p>",
+            post_trial_gap: 1000
+        };
+        /* scales */
+        var AQ_scale = ["非常同意", "稍有同意", "稍有不同意", "非常不同意"];
+        var ASSQ_scale = ["1", "2", "3"];
+
+        var scale_trial = {
+            type: 'survey-likert',
+            questions: [
+              {prompt: "<strong><big>比起独立完成事情，我还比较喜欢跟别人一起合作。</big></strong>", labels: AQ_scale, required: true}, 
+              {prompt: "<strong><big>我比较喜欢一直沿用相同的方式来做事情。</big></strong>", labels: AQ_scale, required: true},
+              {prompt: "<strong><big>当我试着想象某事时，我脑中很容易就出现画面。</big></strong>", labels: AQ_scale, required: true},
+              {prompt: "<strong><big>我可爱吗？</big></strong>", labels: ASSQ_scale, required: true}
+            ],
+            button_label: '继续'
+        };
+
+        /* define end trial */
+        var ex_end = {
+        type: "html-keyboard-response",
+        stimulus: "<p><strong><big>调查结束，谢谢您的参与！</big></strong></p>",
+        trial_duration: 2000
+        };
+
+        timeline.push(facetest_procedure);
+        timeline.push(instructions_scale);
+        timeline.push(scale_trial);
+        timeline.push(instructions_test);
         timeline.push(test_procedure);
-
-        /* define debrief */
-        var debrief_block = {
-              type: "html-keyboard-response",
-              stimulus: function() {
-
-                var trials = jsPsych.data.get().filter({test_part: 'test'});
-                var correct_trials = trials.filter({correct: true});
-                var accuracy = Math.round(correct_trials.count() / trials.count() * 100);
-                var rt = Math.round(correct_trials.select('rt').mean());
-
-                return "<p>You responded correctly on "+accuracy+"% of the trials.</p>"+
-                "<p>Your average response time was "+rt+"ms.</p>"+
-                "<p>Press any key to complete the experiment. Thank you!</p>";
-
-              }
-            };
-          timeline.push(debrief_block);
-          
+        timeline.push(ex_end);
         /* start the experiment */
         jsPsych.init({
           timeline: timeline,
-          //preload_images: ['img1.png', 'img2.png'],   // var video = ['video/1.mp4', 'video/2.mp4']; preload_video: video
-          //show_preload_progress_bar: false, // hide preload progress bar
-          //use_webaudio: false，
-          //experiment_width: 750,
-          //show_progress_bar: true,
-          //message_progress_bar: '进度',
-
           on_finish: function() {
-            //console.log(jsPsych.data.get().json());
-            //jsPsych.data.get().localSave('json','mydata1.json');
-            //jsPsych.data.get().filter({test_part: test}).localSave('csv','mydata.csv');
-            //jsPsych.data.addProperties({completed: true});
             var subject_info1 = jsPsych.data.get().select('responses')['values'][0];
             var subject_info =JSON.parse(subject_info1);
-            //jsPsych.data.addProperties({subject_info: subject_info});
-            jsPsych.data.addProperties({sub: subject_info.name, gender: subject_info.gender, age: subject_info.age});
+            jsPsych.data.addProperties({subnum: subject_info.name, sub: subject_info.subnum, id: subject_info.id, pay_id: subject_info.pay_id, pro: subject_info.pro, gender: subject_info.gender, age: subject_info.age});
             jsPsych.data.displayData('json');
-            jsPsych.data.get().filter({test_part: 'test'}).localSave('json', subject_info.name + '.json');
+            //jsPsych.data.get().filter([{test_part: 'test'}, {test_part: 'face'}, {trial_type: 'survey-likert'}]).localSave('json', '11.json');
+            console.log("callllllllllll");
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "/experiment/submit_data/" + subject_info.name, true);
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.onreadystatechange = function () {
+                  if (xhr.readyState !== xhr.DONE) return; // 4 是 done
+                  if (xhr.status === 200) {
+                      alert("提交成功");
+                  } else {
+                      alert("提交失败, err=" + xhr.responseText);
+                  }
+              };
+
+              xhr.send(jsPsych.data.get().filter([{test_part: 'test'}, {test_part: 'face'}, {trial_type: 'survey-likert'}]).json());
+            //jsPsych.data.get().filter({test_part: 'test'}).localSave('json', subject_info.name + '.json');
+            //jsPsych.data.get().localSave('json', '11.json');
             //jsPsych.data.get().filter({test_part: 'fixation'}).localSave('json', 'fix.json');
             //jsPsych.data.get().filter({test_part: 'test'}).localSave('csv', subject_info.name + '.csv');
           }
